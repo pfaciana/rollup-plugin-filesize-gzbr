@@ -1,8 +1,9 @@
 {
 	"name": "rollup-plugin-filesize-gzbr",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "A Rollup plugin for calculating and displaying file sizes of generated bundles during the build process",
 	"main": "index.js",
+	"type": "module",
 	"scripts": {},
 	"repository": {
 		"type": "git",
@@ -26,6 +27,9 @@
 	"author": "Phil Faciana <phil@renderdev.com> (https://renderdev.com/)",
 	"license": "MIT",
 	"homepage": "https://github.com/pfaciana/rollup-plugin-filesize-gzbr",
+	"engines": {
+		"node": ">=16.0.0"
+	},
 	"devDependencies": {
 		"rollup": "^3"
 	},
