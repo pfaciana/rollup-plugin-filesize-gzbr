@@ -36,8 +36,8 @@ export default function filesizeGzBr(options = {}) {
 	return {
 		name: 'rollup-plugin-filesize-gzbr',
 
-		async buildStart(opts) {
-			if (!types.length && opts.plugins.some(plugin => plugin.name === 'input-with-css')) {
+		async renderStart(outputOptions, inputOptions) {
+			if (!types.length && inputOptions.plugins.some(plugin => plugin.name === 'input-with-css')) {
 				types = ['asset'];
 			}
 		},
