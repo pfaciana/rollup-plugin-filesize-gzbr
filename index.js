@@ -1,20 +1,26 @@
 import {normalizePath} from '@rollup/pluginutils';
 import path from 'path';
 import {filesize} from "filesize";
-import {gzipSizeSync} from 'gzip-size';
-import {sync as brotliSize} from 'brotli-size';
+import {gzipSize} from 'gzip-size';
+import brotliSize from 'brotli-size';
 import chalk from 'chalk';
 
 function outputSizes(bundleFile, outputFile, content) {
-	const filename = outputFile.includes(bundleFile) ? outputFile : `${bundleFile} (${outputFile})`;
-	const uc = content.length;
-	const gz = gzipSizeSync(content, {level: 9});
-	const br = brotliSize(content, {level: 11});
+	return new Promise((resolve, reject) => {
+		const filename = outputFile.includes(bundleFile) ? outputFile : `${bundleFile} (${outputFile})`;
+		const uc = content.length;
 
-	console.log(`\n${chalk.bold.yellow(filename)}`);
-	console.log(`${chalk.magenta('uncompressed: ')}${chalk.cyan(filesize(uc, {round: 1}))}`);
-	console.log(`${chalk.magenta('gzip: ')}${chalk.cyan(filesize(gz, {round: 1}))}`);
-	console.log(`${chalk.magenta('brotli: ')}${chalk.cyan(filesize(br, {round: 1}))}`);
+		Promise.all([
+			gzipSize(content, {level: 9}),
+			brotliSize['default'](content, {level: 11})
+		]).then(([gz, br]) => {
+			console.log(`\n${chalk.bold.yellow(filename)}`);
+			console.log(`${chalk.magenta('uncompressed: ')}${chalk.cyan(filesize(uc, {round: 1}))}`);
+			console.log(`${chalk.magenta('gzip: ')}${chalk.cyan(filesize(gz, {round: 1}))}`);
+			console.log(`${chalk.magenta('brotli: ')}${chalk.cyan(filesize(br, {round: 1}))}`);
+			resolve(true);
+		}).catch(reject);
+	});
 }
 
 function getRelativePath(absolutePath, relativeTo = process.cwd()) {
@@ -43,7 +49,7 @@ export default function filesizeGzBr(options = {}) {
 			const files = Object.values(bundle).filter(({type}) => types.length === 0 ? true : types.includes(type));
 			for (const file of files) {
 				const content = 'source' in file ? file.source : ('code' in file ? file.code : false);
-				content && outputSizes(normalizePath(file.fileName), outputRel, content)
+				content && await outputSizes(normalizePath(file.fileName), outputRel, content);
 			}
 		},
 	};
