@@ -7,7 +7,7 @@ import chalk from 'chalk';
 
 function outputSizes(bundleFile, outputFile, content) {
 	return new Promise((resolve, reject) => {
-		const filename = outputFile.includes(bundleFile) ? outputFile : `${bundleFile} (${outputFile})`;
+		const filename = !outputFile ? bundleFile : (outputFile.includes(bundleFile) ? outputFile : `${bundleFile} (${outputFile})`);
 		const uc = content.length;
 
 		Promise.all([
@@ -43,7 +43,7 @@ export default function filesizeGzBr(options = {}) {
 		},
 
 		async writeBundle(outputOptions, bundle) {
-			const outputFile = normalizePath(path.normalize(outputOptions.file));
+			const outputFile = normalizePath(path.normalize(outputOptions.file || outputOptions.dir));
 			const outputRel = getRelativePath(outputFile);
 
 			const files = Object.values(bundle).filter(({type}) => types.length === 0 ? true : types.includes(type));
