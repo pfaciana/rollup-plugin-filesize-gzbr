@@ -45,11 +45,18 @@ export default function filesizeGzBr(options = {}) {
 		async writeBundle(outputOptions, bundle) {
 			const outputFile = normalizePath(path.normalize(outputOptions.file || outputOptions.dir));
 			const outputRel = getRelativePath(outputFile);
+			const promises = [];
 
 			const files = Object.values(bundle).filter(({type}) => types.length === 0 ? true : types.includes(type));
 			for (const file of files) {
 				const content = 'source' in file ? file.source : ('code' in file ? file.code : false);
-				content && await outputSizes(normalizePath(file.fileName), outputRel, content);
+				content && promises.push(outputSizes(normalizePath(file.fileName), outputRel, content));
+			}
+
+			try {
+				await Promise.all(promises);
+			} catch (error) {
+				console.log(error);
 			}
 		},
 	};
